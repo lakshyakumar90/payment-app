@@ -23,4 +23,7 @@ authRoutes.get("/me", authMiddleware, getMeController);
 
 authRoutes.post("/refresh-token", refreshTokenController);
 
+// Back-compat with frontend client
+authRoutes.post("/refresh", refreshTokenController);
+
 export default authRoutes;
