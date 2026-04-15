@@ -2,8 +2,8 @@
   "name": "@repo/database",
   "version": "0.0.0",
   "private": true,
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -17,13 +17,19 @@
     "prisma": "^7.2.0"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "@prisma/adapter-neon": "^7.7.0",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "dotenv": "^17.4.2",
     "typescript": "^5.9.3"
   },
   "description": "",
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
 }
