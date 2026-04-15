@@ -40,12 +40,7 @@ const LoginSchema = z.object({
   password: passwordSchema,
 });
 
-const RefreshTokenSchema = z.object({
-  refreshToken: z.string({ message: "Invalid refresh token" }),
-});
-
-export { RegisterSchema, LoginSchema, RefreshTokenSchema };
+export { RegisterSchema, LoginSchema };
 
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
 export type LoginSchemaType = z.infer<typeof LoginSchema>;
-export type RefreshTokenSchemaType = z.infer<typeof RefreshTokenSchema>;

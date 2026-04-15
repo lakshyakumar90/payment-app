@@ -2,17 +2,26 @@ import jwt from "jsonwebtoken";
 import type { SignOptions, JwtPayload } from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
+const ACCESS_SECRET = process.env.ACCESS_SECRET! || "fallback_secret_for_dev_only";
+const REFRESH_SECRET = process.env.REFRESH_SECRET! || "fallback_secret_for_dev_only";
 
-export const generateToken = (payload: object, options?: SignOptions) => {
-  return jwt.sign(payload, JWT_SECRET, {
+
+export const signAccessToken  = (payload: object, options?: SignOptions) => {
+  return jwt.sign(payload, ACCESS_SECRET, {
     ...options,
   });
 };
 
-export const verifyToken = (token: string): JwtPayload | string => {
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    throw new Error("Invalid or expired token");
-  }
+export const signRefreshToken  = (payload: object, options?: SignOptions) => {
+  return jwt.sign(payload, REFRESH_SECRET, {
+    ...options,
+  });
+};
+
+export const verifyAccessToken  = (token: string): JwtPayload | string => {
+    return jwt.verify(token, ACCESS_SECRET);
+};
+
+export const verifyRefreshToken  = (token: string): JwtPayload | string => {
+    return jwt.verify(token, REFRESH_SECRET);
 };

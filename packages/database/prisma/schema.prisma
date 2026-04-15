@@ -20,7 +20,19 @@ model User {
   isActive   Boolean   @default(true)
   isVerified Boolean   @default(false)
 
+  sessions Session[]
+
   @@map("users")
+}
+
+model Session {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  refreshToken String 
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum ROLE {
