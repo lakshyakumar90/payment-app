@@ -1,9 +1,8 @@
 import jwt from "jsonwebtoken";
 import type { SignOptions, JwtPayload } from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
-const ACCESS_SECRET = process.env.ACCESS_SECRET! || "fallback_secret_for_dev_only";
-const REFRESH_SECRET = process.env.REFRESH_SECRET! || "fallback_secret_for_dev_only";
+const ACCESS_SECRET = process.env.ACCESS_SECRET! || "cbjisbvibdvjidsnviwb@@11232jsvjsd";
+const REFRESH_SECRET = process.env.REFRESH_SECRET! || "cbjisbvibdjidsnviwb@@11232jsvjsd";
 
 
 export const signAccessToken  = (payload: object, options?: SignOptions) => {

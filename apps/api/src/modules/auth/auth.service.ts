@@ -1,7 +1,10 @@
-import { hashPassword, hashToken, verifyPassword } from "../../utils/hash.js";
+import { hashPassword, hashToken, verifyPassword, verifyToken } from "../../utils/hash.js";
 import type { RegisterSchemaType, LoginSchemaType } from "@repo/zod-schemas";
 import { prisma } from "@repo/database";
 import { createSession } from "./auth.utils.js";
+import { verifyRefreshToken } from "../../utils/jwt.js";
+import { signAccessToken, signRefreshToken } from "../../utils/jwt.js";
+import type { TokenPayload } from "../../types.js";
 
 type RegisterResult = {
   accessToken: string;
@@ -83,4 +86,64 @@ const login = async (data: LoginSchemaType): Promise<LoginResult> => {
   };
 };
 
-export { register, login };
+const refreshToken = async (refreshToken: string) => {
+  const payload = verifyRefreshToken(refreshToken) as TokenPayload;
+
+  const sessions = await prisma.session.findMany({
+    where: { userId: payload.userId },
+  });
+
+  let validSession = null;
+
+  for (const session of sessions) {
+    const isValid = await verifyToken(
+      refreshToken,
+      session.refreshToken
+    );
+
+    if (isValid) {
+      validSession = session;
+      break;
+    }
+  }
+
+  if (!validSession) throw new Error("Invalid refresh token");
+
+  await prisma.session.delete({
+    where: { id: validSession.id },
+  });
+
+  const newAccessToken = signAccessToken({ userId: payload.userId });
+  const newRefreshToken = signRefreshToken({ userId: payload.userId });
+
+  const hashed = await hashToken(newRefreshToken);
+
+  await prisma.session.create({
+    data: {
+      userId: payload.userId,
+      refreshToken: hashed,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  };
+};
+
+const getMe = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  };
+};
+
+export { register, login, refreshToken, getMe };
