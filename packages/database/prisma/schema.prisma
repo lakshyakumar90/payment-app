@@ -8,12 +8,12 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String @db.VarChar(64)
-  email    String @unique @db.VarChar(255)
-  password String @db.VarChar(255)
-  role     ROLE   @default(USER)
-  wallet Wallet?
+  id       String  @id @default(uuid())
+  name     String  @db.VarChar(64)
+  email    String  @unique @db.VarChar(255)
+  password String  @db.VarChar(255)
+  role     ROLE    @default(USER)
+  wallet   Wallet?
 
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -27,22 +27,38 @@ model User {
 }
 
 model Session {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  refreshToken String 
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  refreshToken String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Wallet {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  cachedBalance Int      @default(0) 
+  ledgerEntries LedgerEntry[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model LedgerEntry {
   id String @id @default(uuid())
-  userId String @unique
-  user User @relation(fields: [userId], references: [id])
-  balance Int @default(0)
+  walletId String
+  wallet Wallet @relation(fields: [walletId], references: [id])
+  amount Int
+  entryType EntryType
+  refrenceId String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+}
+
+enum EntryType {
+  CREDIT
+  DEBIT
 }
 
 enum ROLE {
