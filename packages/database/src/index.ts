@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { PrismaNeon } from '@prisma/adapter-neon';
-import { PrismaClient } from "../generated/prisma/client.js";
+import { Prisma, PrismaClient } from "../generated/prisma/client.js";
 
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -14,4 +14,4 @@ const connectionString = process.env.DATABASE_URL!;
 const adapter = new PrismaNeon({ connectionString: connectionString });
 const prisma = new PrismaClient({ adapter: adapter });
 
-export { prisma };
+export { prisma, Prisma };

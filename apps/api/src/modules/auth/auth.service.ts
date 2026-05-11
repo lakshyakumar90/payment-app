@@ -1,6 +1,7 @@
 import { hashPassword, hashToken, verifyPassword, verifyToken } from "../../utils/hash.js";
 import type { RegisterSchemaType, LoginSchemaType } from "@repo/zod-schemas";
 import { prisma } from "@repo/database";
+import { interactiveTransactionDefaults } from "../../utils/prisma-transaction.js";
 import { createSession } from "./auth.utils.js";
 import { verifyRefreshToken } from "../../utils/jwt.js";
 import { signAccessToken, signRefreshToken } from "../../utils/jwt.js";
@@ -43,19 +44,33 @@ const register = async (data: RegisterSchemaType): Promise<RegisterResult> => {
 
   const hashedPassword = await hashPassword(password);
 
-  const user = await prisma.user.create({
-    data: { name, email, password: hashedPassword },
-  });
+  const newUser = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.user.create({
+        data: { name, email, password: hashedPassword },
+      });
 
-  const { accessToken, refreshToken } = await createSession(user.id);
+      await tx.wallet.create({
+        data: {
+          userId: user.id,
+        },
+      });
+
+      return user;
+    },
+    interactiveTransactionDefaults,
+  );
+
+
+  const { accessToken, refreshToken } = await createSession(newUser.id);
 
   return {
-    accessToken,
+    accessToken,  
     refreshToken,
     user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
     },
   };
 };

@@ -7,7 +7,13 @@ export const validateRequest = (schema: z.ZodSchema) => {
       await schema.parseAsync(req.body);
       next();
     } catch (error) {
-      return res.status(400).json({ message: (error as Error).message });
+      return res
+        .status(400)
+        .json({
+          message: (error as z.ZodError).issues
+            .map((err) => err.message)
+            .join(", "),
+        });
     }
   };
 };

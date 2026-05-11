@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import type { Request, Response } from "express";
 import authRoutes from "./modules/auth/auth.routes.js";
 import cookieParser from "cookie-parser";
+import walletRoutes from "./modules/wallet/wallet.routes.js";
+import transactionRoutes from "./modules/transaction/transaction.routes.js";
 
 dotenv.config();
 
@@ -24,6 +26,8 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/wallet", walletRoutes);
+app.use("/api/v1/transaction", transactionRoutes);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);
