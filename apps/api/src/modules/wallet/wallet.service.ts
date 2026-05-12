@@ -112,3 +112,123 @@ export const topUpWallet = async (userId: string, amount: number) => {
         interactiveTransactionDefaults,
     );
 };
+
+export const deductWallet = async (userId: string, amount: number) => {
+    const wallet = await findWalletRowByUserId(userId);
+
+    if (!wallet) {
+        throw new Error("Wallet not found");
+    }
+    
+    return prisma.$transaction(
+        async (tx) => {
+            const created = await tx.ledgerEntry.create({
+                data: {
+                    walletId: wallet.id,
+                    amount,
+                    entryType: "DEBIT",
+                },
+            });
+            await tx.wallet.update({
+                where: { id: wallet.id },
+                data: {
+                    cachedBalance: {
+                        decrement: amount,
+                    },
+                },
+            });
+            return toLedgerEntrySummary(created);
+        },
+        interactiveTransactionDefaults,
+    );
+};
+
+export const resetCacheWallet = async (userId: string) => {
+    const wallet = await findWalletRowByUserId(userId);
+
+    if (!wallet) {
+        throw new Error("Wallet not found");
+    }
+    
+    return prisma.$transaction(
+        async (tx) => {
+            await tx.wallet.update({
+                where: { id: wallet.id },       
+                data: {
+                    cachedBalance: {
+                        set: await sumLedgerBalance(tx, wallet.id),
+                    },
+                },
+            });
+            return { success: true, message: "Cache reset successfully" };
+        },
+        interactiveTransactionDefaults,
+    );
+};
+
+export const resetAllCachesWallet = async () => {
+    return prisma.$transaction(
+        async (tx) => {
+            const wallets = await tx.wallet.findMany({ select: { id: true } });
+            for (const w of wallets) {
+                const ledgerBalance = await sumLedgerBalance(tx, w.id);
+                await tx.wallet.update({
+                    where: { id: w.id },
+                    data: { cachedBalance: ledgerBalance },
+                });
+            }
+            return { updatedCount: wallets.length };
+        },
+        interactiveTransactionDefaults,
+    );
+};
+
+export const topUpAllWallet = async (amount: number) => {
+    return prisma.$transaction(
+        async (tx) => {
+            const wallets = await tx.wallet.findMany({ select: { id: true } });
+            for (const w of wallets) {
+                await tx.ledgerEntry.create({
+                    data: {
+                        walletId: w.id,
+                        amount,
+                        entryType: "CREDIT",
+                    },
+                });
+                await tx.wallet.update({
+                    where: { id: w.id },
+                    data: {
+                        cachedBalance: { increment: amount },
+                    },
+                });
+            }
+            return { affectedCount: wallets.length, amount };
+        },
+        interactiveTransactionDefaults,
+    );
+};
+
+export const deductAllWallet = async (amount: number) => {
+    return prisma.$transaction(
+        async (tx) => {
+            const wallets = await tx.wallet.findMany({ select: { id: true } });
+            for (const w of wallets) {
+                await tx.ledgerEntry.create({
+                    data: {
+                        walletId: w.id,
+                        amount,
+                        entryType: "DEBIT",
+                    },
+                });
+                await tx.wallet.update({
+                    where: { id: w.id },
+                    data: {
+                        cachedBalance: { decrement: amount },
+                    },
+                });
+            }
+            return { affectedCount: wallets.length, amount };
+        },
+        interactiveTransactionDefaults,
+    );
+};
