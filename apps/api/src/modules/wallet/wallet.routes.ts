@@ -13,7 +13,7 @@ const router: Router = Router();
 
 router.get("/", authMiddleware, getWalletByUserIdController);
 router.post(
-  "/top-up",
+  "/admin/top-up",
   authMiddleware,
   adminMiddleware,
   validateRequest(AdminTopUpWalletSchema),
