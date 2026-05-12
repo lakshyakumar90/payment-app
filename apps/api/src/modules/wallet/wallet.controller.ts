@@ -12,7 +12,7 @@ export const getWalletByUserIdController = async (req: Request, res: Response) =
 
 export const topUpWalletController = async (req: Request, res: Response) => {
     try {
-        const wallet = await topUpWallet(req.user?.userId!, req.body.amount);
+        const wallet = await topUpWallet(req.body.userId, req.body.amount);
         res.status(200).json({ wallet });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
