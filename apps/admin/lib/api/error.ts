@@ -1,0 +1,18 @@
+import { isAxiosError } from "axios";
+
+export function getApiErrorMessage(
+  error: unknown,
+  fallback = "Something went wrong",
+): string {
+  if (isAxiosError(error)) {
+    const data = error.response?.data as { message?: string } | undefined;
+    if (typeof data?.message === "string") {
+      return data.message;
+    }
+    return error.message || fallback;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return fallback;
+}
