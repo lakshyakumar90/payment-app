@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { getApiErrorMessage } from "../../lib/api/error";
+import { toastError, toastSuccess } from "../../lib/toast";
 import { useAuth } from "../../providers/auth-provider";
 import { ErrorAlert } from "../feedback/error-alert";
 
@@ -34,10 +35,13 @@ export function LoginForm() {
     mutationFn: (body: LoginSchemaType) => login(body),
     onSuccess: () => {
       setServerError(null);
+      toastSuccess("Signed in successfully");
       router.replace("/");
     },
     onError: (err) => {
-      setServerError(getApiErrorMessage(err));
+      const msg = getApiErrorMessage(err);
+      setServerError(msg);
+      toastError(msg);
     },
   });
 

@@ -73,4 +73,31 @@ const logoutController = async (req: Request, res: Response) => {
   }
 };
 
-export { registerController, loginController, refreshTokenController, getMeController, logoutController };
+const searchUsersController = async (req: Request, res: Response) => {
+  try {
+    const rawQuery = req.query.query;
+    const query =
+      typeof rawQuery === "string" ? rawQuery.trim() : rawQuery?.toString().trim();
+
+    const rawLimit = req.query.limit;
+    const limitNum =
+      typeof rawLimit === "string" ? Number.parseInt(rawLimit, 10) : Number(rawLimit);
+    const limit = Number.isFinite(limitNum)
+      ? Math.max(1, Math.min(20, limitNum))
+      : 10;
+
+    const users = await authService.searchUsers(query ?? "", limit);
+    res.status(200).json({ users });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export {
+  registerController,
+  loginController,
+  refreshTokenController,
+  getMeController,
+  logoutController,
+  searchUsersController,
+};

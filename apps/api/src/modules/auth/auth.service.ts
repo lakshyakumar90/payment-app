@@ -171,4 +171,38 @@ const logout = async (userId: string) => {
   });
 };
 
-export { register, login, refreshToken, getMe, logout };
+export type AdminUserSearchResult = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+const searchUsers = async (query: string, limit: number): Promise<AdminUserSearchResult[]> => {
+  const safeQuery = query.trim();
+
+  const users = await prisma.user.findMany({
+    where: {
+      deletedAt: null,
+      isActive: true,
+      ...(safeQuery.length >= 2
+        ? {
+            OR: [
+              { email: { contains: safeQuery, mode: "insensitive" } },
+              { name: { contains: safeQuery, mode: "insensitive" } },
+            ],
+          }
+        : {}),
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+    orderBy: [{ createdAt: "desc" }],
+    take: limit,
+  });
+
+  return users;
+};
+
+export { register, login, refreshToken, getMe, logout, searchUsers };

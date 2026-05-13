@@ -1,11 +1,13 @@
 import { RegisterSchema, LoginSchema } from "@repo/zod-schemas";
 import { Router } from "express";
 import { validateRequest } from "../../middleware/validation.middleware.js";
+import { adminMiddleware } from "../../middleware/admin.middleware.js";
 import {
   loginController,
   registerController,
   refreshTokenController,
   getMeController,
+  searchUsersController,
   logoutController,
 } from "./auth.controller.js";
 import { authMiddleware } from "../../middleware/auth.middleware.js";
@@ -21,6 +23,13 @@ authRoutes.post(
 authRoutes.post("/login", validateRequest(LoginSchema), loginController);
 
 authRoutes.get("/me", authMiddleware, getMeController);
+
+authRoutes.get(
+  "/admin/users/search",
+  authMiddleware,
+  adminMiddleware,
+  searchUsersController,
+);
 
 authRoutes.post("/refresh-token", refreshTokenController);
 
