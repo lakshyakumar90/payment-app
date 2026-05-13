@@ -6,7 +6,6 @@ import axios, {
 
 import { API_V1_URL } from "./config";
 import { getAccessToken, setAccessToken } from "./access-token";
-import { error } from "console";
 
 type QueueItem = {
   resolve: (token: string) => void;

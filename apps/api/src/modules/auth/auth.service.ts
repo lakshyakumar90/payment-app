@@ -14,6 +14,7 @@ type RegisterResult = {
     id: string;
     name: string;
     email: string;
+    role: string;
   };
 };
 
@@ -24,6 +25,7 @@ type LoginResult = {
     id: string;
     name: string;
     email: string;
+    role: string;
   };
 };
 
@@ -71,6 +73,7 @@ const register = async (data: RegisterSchemaType): Promise<RegisterResult> => {
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
+      role: newUser.role,
     },
   };
 };
@@ -97,7 +100,7 @@ const login = async (data: LoginSchemaType): Promise<LoginResult> => {
   return {
     accessToken,
     refreshToken,
-    user: { id: user.id, name: user.name, email: user.email },
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
   };
 };
 
@@ -158,6 +161,7 @@ const getMe = async (userId: string) => {
     id: user.id,
     name: user.name,
     email: user.email,
+    role: user.role as "USER" | "ADMIN",
   };
 };
 
