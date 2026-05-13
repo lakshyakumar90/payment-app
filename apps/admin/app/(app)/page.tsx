@@ -1,7 +1,10 @@
 export default function AppHomePage() {
-    return (
-        <main className="min-h-screen w-full flex items-center justify-center">
-            <h1 className="text-2xl font-bold">App Home</h1>
-        </main>
-    )
+  return (
+    <div>
+      <h1 className="text-xl font-semibold">Dashboard</h1>
+      <p className="mt-2 text-sm text-neutral-600">
+        Welcome to the admin dashboard.
+      </p>
+    </div>
+  );
 }
