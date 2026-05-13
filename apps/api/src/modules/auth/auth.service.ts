@@ -161,4 +161,10 @@ const getMe = async (userId: string) => {
   };
 };
 
-export { register, login, refreshToken, getMe };
+const logout = async (userId: string) => {
+  await prisma.session.deleteMany({
+    where: { userId },
+  });
+};
+
+export { register, login, refreshToken, getMe, logout };

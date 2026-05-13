@@ -6,6 +6,7 @@ import {
   registerController,
   refreshTokenController,
   getMeController,
+  logoutController,
 } from "./auth.controller.js";
 import { authMiddleware } from "../../middleware/auth.middleware.js";
 
@@ -25,5 +26,7 @@ authRoutes.post("/refresh-token", refreshTokenController);
 
 // Back-compat with frontend client
 authRoutes.post("/refresh", refreshTokenController);
+
+authRoutes.post("/logout", authMiddleware, logoutController);
 
 export default authRoutes;

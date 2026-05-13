@@ -63,4 +63,14 @@ const getMeController = async (req: Request, res: Response) => {
   }
 };
 
-export { registerController, loginController, refreshTokenController, getMeController };
+const logoutController = async (req: Request, res: Response) => {
+  try{
+    await authService.logout(req.user?.userId!);
+    res.clearCookie(REFRESH_COOKIE_NAME);
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export { registerController, loginController, refreshTokenController, getMeController, logoutController };
