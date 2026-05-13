@@ -11,9 +11,29 @@ dotenv.config();
 
 const app = express();
 
+// apps/api/src/index.ts — replace the cors() block
+
+const parseOrigins = (): string[] => {
+  const raw = process.env.CLIENT_URLS ?? process.env.CLIENT_URL;
+  if (!raw) {
+    return ["http://localhost:3000", "http://localhost:3001"];
+  }
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
+};
+
+const allowedOrigins = parseOrigins();
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin(origin, callback) {
+      if (!origin) {
+        return callback(null, true);
+      }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
